@@ -51,3 +51,4 @@ tmp/
 
 # Puppeteer / Chromium
 .local-chromium/
+frontend/.env
