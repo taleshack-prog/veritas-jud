@@ -12,11 +12,20 @@ const path      = require('path');
 const fs        = require('fs');
 const logger    = require('../services/logger');
 
-const DB_PATH = process.env.DB_PATH
-  ? path.resolve(process.env.DB_PATH)
-  : path.resolve(__dirname, '../../database/veritas.db');
+function resolveDbPath() {
+  const envPath = process.env.DB_PATH;
+  if (envPath) {
+    try {
+      const dir = path.dirname(path.resolve(envPath));
+      fs.mkdirSync(dir, { recursive: true });
+      return path.resolve(envPath);
+    } catch (_) {}
+  }
+  return '/tmp/veritas.db';
+}
 
-const dbDir = path.dirname(DB_PATH);
+const DB_PATH = resolveDbPath();
+const dbDir   = path.dirname(DB_PATH);
 if (!fs.existsSync(dbDir)) fs.mkdirSync(dbDir, { recursive: true });
 
 let _db   = null;
