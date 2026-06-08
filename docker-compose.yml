@@ -1,0 +1,37 @@
+version: '3.9'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: veritas-backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=7d
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - DB_PATH=/app/data/veritas.db
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:8081}
+      - RATE_LIMIT_WINDOW_MS=900000
+      - RATE_LIMIT_MAX=100
+      - LOG_LEVEL=info
+    volumes:
+      - veritas_data:/app/data
+      - veritas_logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+volumes:
+  veritas_data:
+    driver: local
+  veritas_logs:
+    driver: local
